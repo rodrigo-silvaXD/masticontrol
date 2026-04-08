@@ -719,6 +719,13 @@ body {
   justify-content: center;
 }
 
+/* Botão Tentar novamente — centralizado e destacado */
+.btn-quiz-reiniciar {
+  display: flex;
+  margin: 0 auto;
+  justify-content: center;
+}
+
 /* TTS row dentro do quiz */
 .quiz-tts-row {
   margin-bottom: 20px;
@@ -737,11 +744,38 @@ body {
   box-shadow: var(--shadow-lg);
 }
 .resultado-icon { font-size: 72px; margin-bottom: 16px; }
+
+/* Título do resultado + botão de áudio lado a lado */
+.resultado-titulo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.resultado-titulo-row h3 {
+  margin-bottom: 0;
+}
+.resultado-tts-inline {
+  padding: 7px 13px;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
 .quiz-resultado h3 {
   font-size: 28px;
   font-weight: 900;
   color: var(--preto);
   margin-bottom: 10px;
+}
+
+/* Melhoria: animação de entrada no feedback do quiz */
+@keyframes quizFeedbackIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.quiz-feedback-anim {
+  animation: quizFeedbackIn 0.35s ease;
 }
 .quiz-resultado p {
   font-size: 17px;
@@ -905,11 +939,20 @@ body {
 /* ===========================
    TTS CONTROL FLOATING
 =========================== */
+
+/* Melhoria: animação de entrada do painel Parar leitura */
+@keyframes ttsEntrar {
+  from { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
 .tts-control {
   position: fixed;
   top: 80px;
   right: 20px;
   z-index: 300;
+}
+.tts-control.tts-entrando {
+  animation: ttsEntrar 0.22s cubic-bezier(.4,0,.2,1);
 }
 .tts-stop {
   background: var(--vermelho);
@@ -1500,6 +1543,34 @@ body {
   border-color: var(--vermelho);
   color: var(--vermelho);
   background: #fff5f5;
+}
+
+/* ── Modal confirmar limpar ── */
+.modal-limpar-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-limpar-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  max-width: 360px; width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  animation: ttsEntrar 0.22s cubic-bezier(.4,0,.2,1);
+}
+.modal-limpar-msg {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cinza-escuro);
+  margin-bottom: 24px;
+}
+.modal-limpar-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* ── Responsive ── */

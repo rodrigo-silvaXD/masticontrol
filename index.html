@@ -22,10 +22,10 @@
       </div>
       <nav class="nav" id="nav">
         <a href="#inicio">Início</a>
-        <a href="#praticas">Práticas</a>
+        <a href="#mastite">O que é mastite</a>
+        <a href="#quiz">Quiz</a>
         <a href="#impactos">Impactos</a>
         <a href="#procedimento">Procedimento</a>
-        <a href="#quiz">Quiz</a>
         <a href="#evolucao">Evolução</a>
         <a href="#ordenacao">Ordenar</a>
       </nav>
@@ -44,7 +44,6 @@
     </div>
     <div class="container hero-content fade-up">
       <div class="hero-text">
-        <div class="badge">🥛 Saúde do Rebanho</div>
         <h1>Boas práticas<br /><span class="highlight">na ordenha</span></h1>
         <p class="hero-sub">
           Ordenha rápida, higiênica e segura.<br />
@@ -54,9 +53,6 @@
           <a href="#quiz" class="btn btn-green btn-big" onclick="_falarTexto('Abrindo teste de conhecimento')">
             <span class="btn-icon">🧠</span> Teste seu conhecimento
           </a>
-          <a href="#praticas" class="btn btn-outline" onclick="_falarTexto('Abrindo conteúdo educativo')">
-            <span class="btn-icon">📖</span> Aprender mais
-          </a>
         </div>
         <div id="hero-texto" class="hidden-tts">Boas práticas na ordenha. Ordenha rápida, higiênica e segura. Prevenção da disseminação de doenças.</div>
         <button class="tts-btn tts-btn-hero" onclick="lerTexto('hero-texto')">🔊 Ouvir conteúdo</button>
@@ -65,6 +61,7 @@
         <div class="hero-card-big">
           <div class="icon-big">🐄</div>
           <p>Vaca saudável<br />= mais leite</p>
+          <button class="tts-btn tts-btn-hero" style="margin-top:14px;font-size:13px;padding:8px 16px" onclick="_falarTexto('Vaca saudável. Vaca saudável produz mais leite.')">🔊 Ouvir</button>
         </div>
       </div>
     </div>
@@ -119,12 +116,18 @@
       <!-- Resultado final -->
       <div class="quiz-resultado" id="quizResultado" style="display:none">
         <div class="resultado-icon" id="resultadoIcon"></div>
-        <h3 id="resultadoTitulo"></h3>
+        <div class="resultado-titulo-row">
+          <h3 id="resultadoTitulo"></h3>
+          <button class="tts-btn resultado-tts-inline" id="btnOuvirResultadoQuiz" onclick="lerResultadoQuiz()" title="Ouvir resultado">🔊</button>
+        </div>
         <p id="resultadoTexto"></p>
         <div class="resultado-pontos" id="resultadoPontos"></div>
         <!-- Feedback personalizado por erros -->
         <div class="erros-feedback" id="errosFeedback"></div>
-        <button class="btn btn-green btn-big" onclick="reiniciarQuiz()">
+        <button class="tts-btn" id="btnOuvirRevisar" onclick="lerOQueRevisar()" style="display:none; margin-bottom:20px">
+          🔊 Ouvir tudo para revisar
+        </button>
+        <button class="btn btn-green btn-big btn-quiz-reiniciar" onclick="reiniciarQuiz()">
           🔄 Tentar novamente
         </button>
       </div>
@@ -144,7 +147,7 @@
       <div id="impactos-texto" class="hidden-tts">
         Impactos do manejo inadequado. Quando a ordenha é feita errado, todos perdem.
         Redução na produção e qualidade do leite. Maior risco de mastite, que é uma doença grave do úbere.
-        Leite rejeitado na plataforma. Prejuízo financeiro para a fazenda.
+        Leite fora do padrão é descartado. Prejuízo financeiro para a fazenda.
       </div>
       <div class="cards-grid fade-up">
         <div class="impact-card red">
@@ -160,98 +163,13 @@
         <div class="impact-card yellow">
           <div class="impact-icon">❌</div>
           <h3>Leite rejeitado</h3>
-          <p>Leite fora do padrão é descartado na plataforma</p>
+          <p>Leite fora do padrão é descartado</p>
         </div>
         <div class="impact-card purple">
           <div class="impact-icon">💸</div>
           <h3>Prejuízo</h3>
           <p>Perda financeira para toda a fazenda</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PRÁTICAS ===== -->
-  <section class="praticas" id="praticas">
-    <div class="container">
-      <div class="section-header fade-up">
-        <h2>Como fazer certo</h2>
-        <p>Siga esses passos simples antes, durante e depois da ordenha.</p>
-        <button class="tts-btn" onclick="lerTexto('praticas-texto')">
-          🔊 Ouvir
-        </button>
-      </div>
-      <div id="praticas-texto" class="hidden-tts">
-        Como fazer certo. Siga esses passos simples antes, durante e depois da ordenha.
-        Antes: Lave bem as mãos. Limpe o úbere com pano úmido. Faça os três primeiros jatos no caneco de fundo escuro.
-        Durante: Ordene com calma. Não deixe o animal estressado. Use equipamento limpo.
-        Depois: Faça o pós-dipping, mergulhando os tetos em solução iodada. Observe se tem leite diferente. Anote animais com problema.
-      </div>
-      <div class="steps-wrapper fade-up">
-
-        <div class="step-group">
-          <div class="step-label antes">Antes</div>
-          <div class="steps-row">
-            <div class="step-card">
-              <div class="step-num">1</div>
-              <div class="step-icon">🙌</div>
-              <p>Lave bem as mãos</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">2</div>
-              <div class="step-icon">🧻</div>
-              <p>Limpe o úbere com pano úmido</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">3</div>
-              <div class="step-icon">🥛</div>
-              <p>Faça os 3 primeiros jatos no caneco</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="step-group">
-          <div class="step-label durante">Durante</div>
-          <div class="steps-row">
-            <div class="step-card">
-              <div class="step-num">4</div>
-              <div class="step-icon">😌</div>
-              <p>Ordene com calma</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">5</div>
-              <div class="step-icon">🔧</div>
-              <p>Use equipamento limpo</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">6</div>
-              <div class="step-icon">🐄</div>
-              <p>Não deixe o animal estressado</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="step-group">
-          <div class="step-label depois">Depois</div>
-          <div class="steps-row">
-            <div class="step-card">
-              <div class="step-num">7</div>
-              <div class="step-icon">💧</div>
-              <p>Faça o pós-dipping nos tetos</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">8</div>
-              <div class="step-icon">👁️</div>
-              <p>Observe o leite — alguma coisa estranha?</p>
-            </div>
-            <div class="step-card">
-              <div class="step-num">9</div>
-              <div class="step-icon">📋</div>
-              <p>Anote animais com problema</p>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
@@ -271,6 +189,8 @@
             O que é mastite? A mastite é uma inflamação do úbere da vaca. É causada principalmente por bactérias.
             Pode ser difícil de ver, pois nem sempre há sintomas visíveis. Por isso é importante fazer o teste do caneco de fundo escuro a cada ordenha.
             Sinais de alerta: leite com grumos ou água, úbere inchado ou quente, vaca com dor, queda na produção de leite.
+            Card verde: Úbere saudável. Leite limpo e normal. Situação saudável, sem doença.
+            Card vermelho: Mastite. Leite com grumos e úbere inchado. Situação de risco, animal com doença.
           </div>
           <p class="info-intro">A mastite é uma <strong>inflamação do úbere</strong> da vaca. É causada principalmente por bactérias.</p>
           <div class="alert-box">
@@ -316,7 +236,7 @@
 
       <!-- Indicador de progresso fixo (melhoria: destaque da etapa atual) -->
       <div class="proc-barra-sticky" id="procBarraSticky">
-        <span class="proc-barra-label" id="procBarraLabel">Etapa 1 de 9</span>
+        <span class="proc-barra-label" id="procBarraLabel">Etapa 1 de 8</span>
         <div class="proc-dots" id="procDots"></div>
       </div>
 
@@ -326,8 +246,7 @@
         <!-- ── Etapa 1 ── -->
         <div class="proc-card fade-up" data-step="1" id="proc-step-1">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 1 de 9</span>
-            <span class="proc-icon">🧹</span>
+            <span class="proc-badge">Etapa 1 de 8</span>
             <h3 class="proc-titulo">Higienização do ambiente de ordenha</h3>
           </div>
           <div class="proc-sub-grid">
@@ -353,8 +272,7 @@
         <!-- ── Etapa 2 ── -->
         <div class="proc-card fade-up" data-step="2" id="proc-step-2">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 2 de 9</span>
-            <span class="proc-icon">🙌</span>
+            <span class="proc-badge">Etapa 2 de 8</span>
             <h3 class="proc-titulo">Higiene do ordenhador</h3>
           </div>
           <p class="proc-texto">Realizar a higienização das mãos, pois elas podem conter bactérias contaminantes</p>
@@ -372,8 +290,7 @@
         <!-- ── Etapa 3 ── -->
         <div class="proc-card fade-up" data-step="3" id="proc-step-3">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 3 de 9</span>
-            <span class="proc-icon">🧻</span>
+            <span class="proc-badge">Etapa 3 de 8</span>
             <h3 class="proc-titulo">Limpeza dos tetos</h3>
           </div>
           <p class="proc-texto">Fazer a limpeza dos tetos, removendo a sujidade</p>
@@ -389,8 +306,7 @@
         <!-- ── Etapa 4 ── -->
         <div class="proc-card fade-up" data-step="4" id="proc-step-4">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 4 de 9</span>
-            <span class="proc-icon">🥛</span>
+            <span class="proc-badge">Etapa 4 de 8</span>
             <h3 class="proc-titulo">Teste inicial do leite</h3>
           </div>
           <p class="proc-texto">Descartar os 3 primeiros jatos de leite em uma caneca de fundo preto, pois apresentam maior risco de contaminação e ajudam na identificação de alterações (como mastite)</p>
@@ -408,8 +324,7 @@
         <!-- ── Etapa 5 ── -->
         <div class="proc-card proc-card-ordem fade-up" data-step="5" id="proc-step-5">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 5 de 9</span>
-            <span class="proc-icon">📋</span>
+            <span class="proc-badge">Etapa 5 de 8</span>
             <h3 class="proc-titulo">
               Ordem de ordenha
               <span class="proc-importante">⚠️ Muito importante</span>
@@ -441,8 +356,7 @@
         <!-- ── Etapa 6 ── -->
         <div class="proc-card fade-up" data-step="6" id="proc-step-6">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 6 de 9</span>
-            <span class="proc-icon">💧</span>
+            <span class="proc-badge">Etapa 6 de 8</span>
             <h3 class="proc-titulo">Pré-dipping <small class="proc-subtitulo">(pré-desinfecção)</small></h3>
           </div>
           <p class="proc-texto">Imergir completamente cada teto na solução desinfetante, utilizando produto adequado (ex: iodo ou outro desinfetante) e deixar agir por no mínimo 30 segundos</p>
@@ -461,8 +375,7 @@
         <!-- ── Etapa 7 ── -->
         <div class="proc-card fade-up" data-step="7" id="proc-step-7">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 7 de 9</span>
-            <span class="proc-icon">🔧</span>
+            <span class="proc-badge">Etapa 7 de 8</span>
             <h3 class="proc-titulo">Colocação das teteiras</h3>
           </div>
           <p class="proc-texto">Realizar o acoplamento correto das teteiras na vaca</p>
@@ -481,36 +394,22 @@
         <!-- ── Etapa 8 ── -->
         <div class="proc-card fade-up" data-step="8" id="proc-step-8">
           <div class="proc-card-top">
-            <span class="proc-badge">Etapa 8 de 9</span>
-            <span class="proc-icon">💦</span>
-            <h3 class="proc-titulo">Pós-dipping <small class="proc-subtitulo">(pós-desinfecção)</small></h3>
+            <span class="proc-badge">Etapa 8 de 8</span>
+            <h3 class="proc-titulo">Pós-dipping <small class="proc-subtitulo">(pós-desinfecção)</small> e cuidados com o esfíncter</h3>
           </div>
           <p class="proc-texto">Realizar a imersão dos tetos em solução desinfetante após a ordenha</p>
           <p class="proc-texto">Principal função: eliminação de bactérias contagiosas</p>
-          <button class="tts-btn proc-tts"
-            data-title="Pós-dipping, pós-desinfecção"
-            data-content="Realizar a imersão dos tetos em solução desinfetante após a ordenha. Principal função: eliminação de bactérias contagiosas."
-            onclick="lerEtapa(this)">🔊 Ouvir esta etapa</button>
-        </div>
-
-        <!-- ── Etapa 9 ── -->
-        <div class="proc-card fade-up" data-step="9" id="proc-step-9">
-          <div class="proc-card-top">
-            <span class="proc-badge">Etapa 9 de 9</span>
-            <span class="proc-icon">🐄</span>
-            <h3 class="proc-titulo">Cuidados com o esfíncter do teto</h3>
-          </div>
-          <p class="proc-texto">O esfíncter permanece aberto por 20 a 30 minutos após a ordenha</p>
-          <p class="proc-texto">Utilizar soluções como iodo para proteção</p>
-          <p class="proc-texto">Oferecer alimento fresco e volumoso, mantendo as vacas em pé após a ordenha</p>
           <div class="proc-media-wrap">
             <video class="proc-video" controls preload="metadata">
               <source src="video5.mp4" type="video/mp4" />
             </video>
           </div>
+          <p class="proc-texto">O esfíncter permanece aberto por 20 a 30 minutos após a ordenha</p>
+          <p class="proc-texto">Utilizar soluções como iodo para proteção</p>
+          <p class="proc-texto">Oferecer alimento fresco e volumoso, mantendo as vacas em pé após a ordenha</p>
           <button class="tts-btn proc-tts"
-            data-title="Cuidados com o esfíncter do teto"
-            data-content="O esfíncter permanece aberto por 20 a 30 minutos após a ordenha. Utilizar soluções como iodo para proteção. Oferecer alimento fresco e volumoso, mantendo as vacas em pé após a ordenha."
+            data-title="Pós-dipping e cuidados com o esfíncter do teto"
+            data-content="Realizar a imersão dos tetos em solução desinfetante após a ordenha. Principal função: eliminação de bactérias contagiosas. O esfíncter permanece aberto por 20 a 30 minutos após a ordenha. Utilizar soluções como iodo para proteção. Oferecer alimento fresco e volumoso, mantendo as vacas em pé após a ordenha."
             onclick="lerEtapa(this)">🔊 Ouvir esta etapa</button>
         </div>
 
@@ -529,6 +428,7 @@
       </div>
       <div id="evol-intro-txt" class="hidden-tts">
         Acompanhamento da evolução. Registre os dados de cada semana e veja como o rebanho está evoluindo.
+        Para cada semana, informe o número de casos de mastite. Em seguida, indique se houve novos casos, clicando em Sim ou Não. Depois clique em Salvar semana. Repita o processo para as quatro semanas. Após preencher todas as semanas, o gráfico e o resumo do mês serão exibidos automaticamente.
       </div>
 
       <!-- Cards das 4 semanas (gerados por JS) -->
@@ -571,16 +471,16 @@
 
       <div class="section-header fade-up">
         <h2>🔢 Organize a ordem correta da ordenha</h2>
-        <p>Arraste as imagens ou use os botões ↑ ↓ para colocar na sequência certa.</p>
+        <p>Use os botões ↑ ↓ para colocar na sequência correta.</p>
         <button class="tts-btn" onclick="lerTexto('ord-intro-txt')">🔊 Ouvir instruções</button>
       </div>
       <div id="ord-intro-txt" class="hidden-tts">
-        Organize a ordem correta da ordenha. Arraste as imagens ou use os botões de seta para cima e para baixo para colocar na sequência certa. Quando terminar, clique em Verificar ordem. Se errar, clique em Tentar novamente para recomeçar com uma nova ordem aleatória.
+        Organize a ordem correta da ordenha. Use os botões de seta para cima e para baixo para colocar as imagens na sequência certa. Quando terminar, clique em Verificar ordem. Se errar, clique em Tentar novamente para recomeçar com uma nova ordem aleatória.
       </div>
 
       <div class="ord-instrucoes fade-up">
         <span class="ord-inst-icon">📌</span>
-        <p>Organize as imagens na ordem correta da ordenha.<br/>
+        <p>Use os botões ↑ ↓ para organizar as imagens na ordem correta da ordenha.<br/>
         Se errar, clique em <strong>"Tentar novamente"</strong> para recomeçar.</p>
       </div>
 
@@ -653,7 +553,7 @@
         <span class="logo-name"><span class="logo-masti">Masti</span><span class="logo-control">Control</span></span>
       </div>
       <p class="footer-tagline">Soluções inteligentes no controle da mastite</p>
-      <p class="footer-copy">© 2025 MastiControl. Todos os direitos reservados.</p>
+      <p class="footer-copy">© 2026 MastiControl. Todos os direitos reservados.</p>
     </div>
   </footer>
 
@@ -667,6 +567,17 @@
   <!-- Controle de leitura de voz flutuante -->
   <div class="tts-control" id="ttsControl" style="display:none">
     <button class="tts-stop" onclick="pararLeitura()">⏹ Parar leitura</button>
+  </div>
+
+  <!-- Modal confirmação limpar dados -->
+  <div id="modalLimpar" class="modal-limpar-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="modal-limpar-box">
+      <p class="modal-limpar-msg">Deseja mesmo apagar todos os dados salvos?</p>
+      <div class="modal-limpar-btns">
+        <button class="btn btn-green" onclick="modalLimparConfirmar()">✅ Sim, apagar</button>
+        <button class="btn" style="background:#6c757d;color:#fff" onclick="modalLimparCancelar()">❌ Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>

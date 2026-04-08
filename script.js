@@ -58,6 +58,7 @@ document.addEventListener('click', function(e) {
 
 // ─── TEXT-TO-SPEECH (seções) ───────────────────────────────
 const ttsControl = document.getElementById('ttsControl');
+let _ttsPendingTimer = null;   // timer do delay de 500ms
 
 function lerTexto(idElemento) {
   if (!('speechSynthesis' in window)) {
@@ -66,16 +67,20 @@ function lerTexto(idElemento) {
   }
   const el = document.getElementById(idElemento);
   if (!el) return;
-  _falarTexto(el.innerText || el.textContent);
 
-  // Marca botão ativo
+  // Marca botão ativo antes do delay
   document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('reading'));
   const btn = el.closest('section')?.querySelector('.tts-btn');
   if (btn) btn.classList.add('reading');
+
+  _falarTexto(el.innerText || el.textContent);
 }
 
 function _falarTexto(texto) {
+  // Para qualquer fala anterior e cancela timer pendente
   window.speechSynthesis.cancel();
+  clearTimeout(_ttsPendingTimer);
+
   const u = new SpeechSynthesisUtterance(texto);
   u.lang   = 'pt-BR';
   u.rate   = 0.88;
@@ -88,20 +93,49 @@ function _falarTexto(texto) {
              || null;
   if (vozPT) u.voice = vozPT;
 
+  // onend: fala terminou naturalmente → esconde parar
+  u.onend = _limparTTS;
+
+  // onerror: só esconde se for erro real (NÃO cancelamento)
+  // cancel() dispara onerror com e.error='canceled'/'interrupted' — ignorar
+  u.onerror = (e) => {
+    if (e.error !== 'canceled' && e.error !== 'interrupted') {
+      _limparTTS();
+    }
+  };
+
+  // Mostra botão "Parar" imediatamente — estado "preparando"
+  _mostrarParar('⏳ Preparando...');
+
+  // Delay de 500ms para evitar corte da primeira palavra
+  _ttsPendingTimer = setTimeout(() => {
+    _mostrarParar('⏹ Parar leitura');
+    window.speechSynthesis.speak(u);
+  }, 500);
+}
+
+// ── Helpers do botão Parar ─────────────────────────────────
+function _mostrarParar(txt) {
+  const s = document.querySelector('.tts-stop');
+  if (s) s.textContent = txt || '⏹ Parar leitura';
   ttsControl.style.display = 'block';
-  u.onend  = _limparTTS;
-  u.onerror = _limparTTS;
-  window.speechSynthesis.speak(u);
+  ttsControl.classList.remove('tts-entrando');
+  void ttsControl.offsetWidth;            // reflow para re-disparar animação
+  ttsControl.classList.add('tts-entrando');
 }
 
 function _limparTTS() {
   document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('reading'));
   ttsControl.style.display = 'none';
+  ttsControl.classList.remove('tts-entrando');
+  const s = document.querySelector('.tts-stop');
+  if (s) s.textContent = '⏹ Parar leitura';
 }
 
 function pararLeitura() {
-  window.speechSynthesis.cancel();
-  _limparTTS();
+  clearTimeout(_ttsPendingTimer);   // cancela timer pendente
+  window.speechSynthesis.cancel();  // interrompe fala ativa
+  _limparTTS();                     // esconde painel
 }
 
 if ('speechSynthesis' in window) {
@@ -328,6 +362,7 @@ function responder(indice) {
 
   // Para leitura de voz se estiver ativa
   window.speechSynthesis.cancel();
+  clearTimeout(_ttsPendingTimer);
   _limparTTS();
 
   const p        = perguntas[perguntaAtual];
@@ -356,6 +391,10 @@ function responder(indice) {
     feedback.textContent = '❌ ' + p.msgErro;
   }
 
+  // Melhoria: animação de entrada no feedback
+  feedback.classList.remove('quiz-feedback-anim');
+  void feedback.offsetWidth; // força reflow para reiniciar animação
+  feedback.classList.add('quiz-feedback-anim');
   feedback.style.display = 'block';
 
   // Botão avançar
@@ -364,6 +403,17 @@ function responder(indice) {
     ? 'Próxima pergunta →'
     : 'Ver resultado ✅';
   btnNext.style.display = 'block';
+
+  // ── TTS: lê opção escolhida + feedback de acerto/erro ──
+  const opcaoTexto = `Opção ${LETRAS[indice]}. ${p.opcoes[indice]}. `;
+  let feedbackFala;
+  if (acertou) {
+    feedbackFala = 'Resposta correta.';
+  } else {
+    const textoCorreta = p.opcoes[p.correta];
+    feedbackFala = `Resposta incorreta. A alternativa correta é: ${textoCorreta}. Motivo: ${p.msgErro}`;
+  }
+  _falarTexto(opcaoTexto + feedbackFala);
 }
 
 // ─── AVANÇAR PERGUNTA ──────────────────────────────────────
@@ -394,7 +444,7 @@ function mostrarResultado() {
   if (pontuacao <= 4) {
     icone  = '💪';
     titulo = 'Precisa melhorar bastante';
-    texto  = 'Não desanime! Leia as seções acima e tente novamente.';
+    texto  = 'Veja as seções abaixo para melhorar seu desempenho.';
   } else if (pontuacao <= 8) {
     icone  = '📚';
     titulo = 'Está no caminho certo';
@@ -430,11 +480,43 @@ function mostrarResultado() {
       errosFeedbackEl.appendChild(item);
     });
   }
+
+  // Exibe botão "Ouvir tudo para revisar" apenas quando há erros
+  const btnRevisar = document.getElementById('btnOuvirRevisar');
+  if (btnRevisar) btnRevisar.style.display = erros.length > 0 ? 'inline-flex' : 'none';
+}
+
+// ─── TTS: "O QUE REVISAR" ──────────────────────────────────
+function lerOQueRevisar() {
+  if (erros.length === 0) return;
+
+  let texto = 'Perguntas que você errou e como melhorar. ';
+  erros.forEach((idx) => {
+    texto += `Pergunta ${idx + 1}. ${perguntas[idx].msgErro}. `;
+  });
+
+  document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('reading'));
+  const btn = document.getElementById('btnOuvirRevisar');
+  if (btn) btn.classList.add('reading');
+  _falarTexto(texto);
 }
 
 // ─── REINICIAR ─────────────────────────────────────────────
 function reiniciarQuiz() {
   iniciarQuiz();
+}
+
+// ─── TTS DO RESULTADO DO QUIZ ──────────────────────────────
+function lerResultadoQuiz() {
+  const titulo = document.getElementById('resultadoTitulo')?.textContent || '';
+  const texto  = document.getElementById('resultadoTexto')?.textContent  || '';
+  const total  = perguntas.length;
+  const fala   = `${titulo}. Você acertou ${pontuacao} de ${total} perguntas. ${texto}`;
+
+  document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('reading'));
+  const btn = document.getElementById('btnOuvirResultadoQuiz');
+  if (btn) btn.classList.add('reading');
+  _falarTexto(fala);
 }
 
 // ─── PROCEDIMENTO: TTS por etapa ───────────────────────────
@@ -763,13 +845,24 @@ function lerResultadoEvolucao() {
 
 // ── Limpar dados ───────────────────────────────────────────
 function confirmarLimpar() {
-  if (!confirm('Deseja apagar todos os dados registrados?')) return;
+  document.getElementById('modalLimpar').style.display = 'flex';
+  _falarTexto('Limpar todos os dados. Deseja mesmo apagar todos os dados salvos?');
+}
+
+function modalLimparConfirmar() {
+  document.getElementById('modalLimpar').style.display = 'none';
   evolDados = [null, null, null, null];
   evolTemp  = { 1: null, 2: null, 3: null, 4: null };
   localStorage.removeItem(EVOL_KEY);
   renderSemanas();
   desenharGrafico(false);
   atualizarResultado();
+  _falarTexto('Dados apagados.');
+}
+
+function modalLimparCancelar() {
+  document.getElementById('modalLimpar').style.display = 'none';
+  pararLeitura();
 }
 
 // ── Gráfico Canvas ─────────────────────────────────────────
