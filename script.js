@@ -661,10 +661,12 @@ function renderSemanas() {
           class="evol-input"
           id="evol-casos-${sem}"
           min="0" max="9999"
-          value="${salvo ? dado.casos : ''}"
+          value="${salvo ? dado.casos : (evolTemp[sem] === false ? '0' : '')}"
           placeholder="Ex: 3"
           ${salvo ? 'readonly' : `oninput="lerCasosInput(${sem})"`}
+          ${!salvo && evolTemp[sem] === false ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}
         />
+        <div class="evol-erro-msg" id="evol-erro-${sem}" style="display:none"></div>
       </div>
 
       <div class="evol-campo">
@@ -706,13 +708,31 @@ function selecionarNovos(sem, valor) {
   btnSim.className = 'evol-btn-sn' + (valor === true  ? ' ativo-sim' : '');
   btnNao.className = 'evol-btn-sn' + (valor === false ? ' ativo-nao' : '');
 
-  // Se "Não", zera automaticamente o campo de casos
-  if (valor === false && inputEl && inputEl.value === '') {
-    inputEl.value = '0';
+  if (inputEl) {
+    if (valor === false) {
+      // "Não houve casos" → zera e desabilita campo
+      inputEl.value    = '0';
+      inputEl.disabled = true;
+      inputEl.style.opacity = '0.5';
+      inputEl.style.cursor  = 'not-allowed';
+    } else {
+      // "Houve casos" → habilita campo, limpa se estava em 0
+      inputEl.disabled = false;
+      inputEl.style.opacity = '';
+      inputEl.style.cursor  = '';
+      if (inputEl.value === '0') inputEl.value = '';
+      inputEl.focus();
+    }
   }
 
+  // Esconde erro anterior ao mudar seleção
+  const errEl = document.getElementById(`evol-erro-${sem}`);
+  if (errEl) errEl.style.display = 'none';
+
   // TTS acessibilidade
-  _falarTexto(valor ? 'Houve casos' : 'Não houve casos');
+  _falarTexto(valor
+    ? 'Houve casos. Informe o número de casos.'
+    : 'Não houve casos. Número zerado automaticamente.');
 }
 
 // ── TTS ao digitar número de casos ────────────────────────
@@ -723,6 +743,21 @@ function lerCasosInput(sem) {
   window._evolTTSTimer = setTimeout(() => {
     _falarTexto(inputEl.value + ' casos');
   }, 700); // lê 700ms após parar de digitar
+}
+
+// ── Exibe erro visual inline no card de evolução ──────────
+function _mostrarErroEvol(sem, msg) {
+  const errEl = document.getElementById(`evol-erro-${sem}`);
+  const inputEl = document.getElementById(`evol-casos-${sem}`);
+  if (inputEl) {
+    inputEl.style.borderColor = 'var(--vermelho)';
+    setTimeout(() => { inputEl.style.borderColor = ''; }, 3000);
+  }
+  if (errEl) {
+    errEl.textContent = '⚠️ ' + msg;
+    errEl.style.display = 'block';
+    setTimeout(() => { errEl.style.display = 'none'; }, 4000);
+  }
 }
 
 // ── Salva semana ───────────────────────────────────────────
@@ -745,6 +780,9 @@ function salvarSemana(sem) {
     setTimeout(() => { inputEl.style.borderColor = ''; }, 2000);
     return;
   }
+
+  const casosNum = parseInt(casosVal, 10);
+
   // Validação: Sim/Não obrigatório
   if (evolTemp[sem] === null) {
     const snWrap = document.querySelector(`#evol-card-${sem} .evol-sim-nao`);
@@ -753,6 +791,25 @@ function salvarSemana(sem) {
       snWrap.style.borderRadius = '12px';
       setTimeout(() => { snWrap.style.outline = ''; }, 2000);
     }
+    const msg = 'Indique se houve casos ou não antes de salvar';
+    _mostrarErroEvol(sem, msg);
+    _falarTexto(msg);
+    return;
+  }
+
+  // Validação: "Sim" + 0 casos → inválido
+  if (evolTemp[sem] === true && casosNum === 0) {
+    const msg = 'Se houve casos, informe um número maior que zero';
+    _mostrarErroEvol(sem, msg);
+    _falarTexto(msg);
+    return;
+  }
+
+  // Validação: "Não" + casos > 0 → inválido (segurança extra)
+  if (evolTemp[sem] === false && casosNum > 0) {
+    const msg = 'Se não houve casos, o número deve ser zero';
+    _mostrarErroEvol(sem, msg);
+    _falarTexto(msg);
     return;
   }
 
@@ -1193,3 +1250,62 @@ window.addEventListener('resize', () => {
   clearTimeout(window._evolResizeTimer);
   window._evolResizeTimer = setTimeout(() => desenharGrafico(false), 200);
 });
+
+// ── POPUP ACESSIBILIDADE (primeiro acesso) ────────────────
+const _POPUP_KEY = 'popupAcessibilidade';
+
+function _popupFalarTexto(texto, onEnd) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang  = 'pt-BR'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+  const vozPT = window.speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('pt'));
+  if (vozPT) u.voice = vozPT;
+  u.onend = onEnd || null;
+  u.onerror = (e) => { if (e.error !== 'canceled' && e.error !== 'interrupted' && onEnd) onEnd(); };
+  setTimeout(() => window.speechSynthesis.speak(u), 500);
+}
+
+function popupOuvir() {
+  const btnOuvir = document.getElementById('popupBtnOuvir');
+  const btnParar = document.getElementById('popupBtnParar');
+  if (btnOuvir) btnOuvir.style.display = 'none';
+  if (btnParar) btnParar.style.display = '';
+
+  _popupFalarTexto(
+    'Este site possui recursos de acessibilidade. ' +
+    'Você pode ouvir os conteúdos clicando nos botões de áudio ao longo da página.',
+    () => {
+      // Ao terminar naturalmente: restaura botão ouvir
+      if (btnOuvir) btnOuvir.style.display = '';
+      if (btnParar) btnParar.style.display = 'none';
+    }
+  );
+}
+
+function popupParar() {
+  window.speechSynthesis.cancel();
+  const btnOuvir = document.getElementById('popupBtnOuvir');
+  const btnParar = document.getElementById('popupBtnParar');
+  if (btnOuvir) btnOuvir.style.display = '';
+  if (btnParar) btnParar.style.display = 'none';
+}
+
+function popupFechar() {
+  window.speechSynthesis.cancel();
+  const popup = document.getElementById('popupAcessibilidade');
+  if (popup) popup.style.display = 'none';
+  localStorage.setItem(_POPUP_KEY, 'true');
+}
+
+// Exibe popup apenas no primeiro acesso
+if (!localStorage.getItem(_POPUP_KEY)) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const popup = document.getElementById('popupAcessibilidade');
+    if (popup) popup.style.display = 'flex';
+  });
+  // Fallback caso DOMContentLoaded já tenha disparado
+  if (document.readyState !== 'loading') {
+    const popup = document.getElementById('popupAcessibilidade');
+    if (popup) popup.style.display = 'flex';
+  }
+}

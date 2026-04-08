@@ -1273,7 +1273,8 @@ body {
   max-height: 100%;
   width: 100%;
   height: 100%;
-  object-fit: contain;     /* ← exibe imagem completa, sem corte */
+  object-fit: contain;        /* exibe imagem completa, sem corte */
+  image-orientation: from-image; /* respeita rotação EXIF da foto */
   background-color: #f5f5f5;
   display: block;
   border-radius: 10px;
@@ -1299,16 +1300,27 @@ body {
   transform: none;
 }
 
-/* ── Sub-grid da etapa 1 (2 fotos) ── */
+/* ── Sub-grid da etapa 1 (2 fotos) ──
+   Estratégia: display:contents nos .proc-sub torna filhos diretos do grid,
+   permitindo grid-template-rows definir linha 1=textos (auto) e linha 2=imagens (220px).
+   Resultado: ambos os textos ficam na mesma linha → ambas as imagens começam
+   exatamente na mesma altura, independente do tamanho do texto. */
 .proc-sub-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-rows: auto 220px;
+  column-gap: 20px;
+  row-gap: 12px;
+  align-items: start;
   margin-bottom: 6px;
 }
-.proc-sub { display: flex; flex-direction: column; }
-.proc-sub .proc-texto { margin-bottom: 10px; }
-.proc-sub .proc-media-wrap { margin-bottom: 0; flex: 1; height: 220px; }
+.proc-sub { display: contents; }
+
+/* Posicionamento explícito: coluna 1 = sub esquerdo, coluna 2 = sub direito */
+.proc-sub:nth-child(1) > .proc-texto      { grid-column: 1; grid-row: 1; margin-bottom: 0; }
+.proc-sub:nth-child(2) > .proc-texto      { grid-column: 2; grid-row: 1; margin-bottom: 0; }
+.proc-sub:nth-child(1) > .proc-media-wrap { grid-column: 1; grid-row: 2; height: 220px; margin-bottom: 0; }
+.proc-sub:nth-child(2) > .proc-media-wrap { grid-column: 2; grid-row: 2; height: 220px; margin-bottom: 0; }
 
 /* ── Etapa 5: ordem de ordenha ── */
 .proc-card-ordem { background: #fffbeb; border-color: #fcd34d; }
@@ -1362,8 +1374,19 @@ body {
 @media (max-width: 768px) {
   .procedimento { padding: 60px 0; }
   .proc-card { padding: 24px 18px 20px; }
-  .proc-sub-grid { grid-template-columns: 1fr; }
-  .proc-sub .proc-media-wrap { height: 180px; }
+
+  /* No mobile: proc-sub volta a ser flex column e o grid vira 1 coluna empilhada */
+  .proc-sub-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    row-gap: 20px;
+  }
+  .proc-sub { display: flex; flex-direction: column; }
+  .proc-sub:nth-child(1) > .proc-texto,
+  .proc-sub:nth-child(2) > .proc-texto      { grid-column: auto; grid-row: auto; margin-bottom: 10px; }
+  .proc-sub:nth-child(1) > .proc-media-wrap,
+  .proc-sub:nth-child(2) > .proc-media-wrap { grid-column: auto; grid-row: auto; height: 180px; margin-bottom: 0; }
+
   .proc-media-wrap { height: 180px; }
   .proc-barra-sticky { gap: 12px; padding: 10px 16px; flex-wrap: wrap; top: 62px; }
   .proc-dot { width: 14px; height: 14px; }
@@ -1548,6 +1571,19 @@ body {
   font-size: 16px;
 }
 
+/* ── Mensagem de erro inline (validação) ── */
+.evol-erro-msg {
+  color: var(--vermelho);
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 8px;
+  padding: 9px 14px;
+  background: #fff5f5;
+  border-radius: 10px;
+  border-left: 4px solid var(--vermelho);
+  animation: quizFeedbackIn 0.3s ease;
+}
+
 /* ── Gráfico ── */
 .evol-grafico-bloco {
   background: var(--branco);
@@ -1653,6 +1689,149 @@ body {
   border-color: var(--vermelho);
   color: var(--vermelho);
   background: #fff5f5;
+}
+
+/* ===========================
+   POPUP ACESSIBILIDADE
+=========================== */
+@keyframes popupEntrar {
+  from { opacity: 0; transform: translateY(24px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes pulsarOuvir {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(39,168,78,0.55), 0 6px 20px rgba(39,168,78,0.35); }
+  50%       { box-shadow: 0 0 0 12px rgba(39,168,78,0),   0 6px 20px rgba(39,168,78,0.35); }
+}
+@keyframes pulsarRing {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(2.4);  opacity: 0; }
+}
+
+.popup-acesso-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.popup-acesso-box {
+  background: var(--branco);
+  border-radius: 24px;
+  padding: 40px 32px 32px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.28);
+  animation: popupEntrar 0.35s cubic-bezier(.4,0,.2,1);
+}
+.popup-acesso-icone {
+  font-size: 52px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.popup-acesso-titulo {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--preto);
+  margin-bottom: 14px;
+}
+.popup-acesso-msg {
+  font-size: 16px;
+  color: var(--cinza-text);
+  font-weight: 600;
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+.popup-acesso-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Botão "Ouvir" com animação de pulso para induzir o clique ── */
+.popup-btn-ouvir {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 17px 24px;
+  background: var(--verde);
+  color: var(--branco);
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  animation: pulsarOuvir 1.8s ease-in-out infinite;
+  transition: background var(--transition), transform var(--transition);
+}
+.popup-btn-ouvir:hover {
+  background: var(--verde-dark);
+  transform: scale(1.03);
+  animation: none;
+  box-shadow: 0 6px 24px rgba(39,168,78,0.45);
+}
+/* Anel de onda que expande a partir do centro */
+.popup-btn-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  border: 3px solid rgba(255,255,255,0.7);
+  animation: pulsarRing 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ── Botão "Parar" ── */
+.popup-btn-parar {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--vermelho);
+  color: var(--branco);
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.popup-btn-parar:hover {
+  background: #c53030;
+  transform: scale(1.02);
+}
+
+/* ── Botão "Fechar" ── */
+.popup-btn-fechar {
+  width: 100%;
+  padding: 13px 24px;
+  background: none;
+  color: var(--cinza-text);
+  border: 2px solid var(--cinza-light);
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+.popup-btn-fechar:hover {
+  border-color: var(--cinza-text);
+  color: var(--preto);
+  background: var(--cinza-bg);
+}
+
+@media (max-width: 480px) {
+  .popup-acesso-box   { padding: 32px 20px 24px; }
+  .popup-acesso-titulo { font-size: 19px; }
+  .popup-btn-ouvir    { font-size: 17px; padding: 16px 20px; }
 }
 
 /* ── Modal confirmar limpar ── */

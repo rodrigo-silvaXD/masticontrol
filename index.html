@@ -569,6 +569,30 @@
     <button class="tts-stop" onclick="pararLeitura()">⏹ Parar leitura</button>
   </div>
 
+  <!-- ===== POPUP ACESSIBILIDADE (primeiro acesso) ===== -->
+  <div id="popupAcessibilidade" class="popup-acesso-overlay" role="dialog" aria-modal="true" aria-label="Recursos de acessibilidade" style="display:none">
+    <div class="popup-acesso-box">
+      <div class="popup-acesso-icone">🔊</div>
+      <h2 class="popup-acesso-titulo">Acessibilidade por áudio</h2>
+      <p class="popup-acesso-msg">
+        Este site possui recursos de acessibilidade.<br>
+        Você pode ouvir os conteúdos clicando nos botões de áudio ao longo da página.
+      </p>
+      <div class="popup-acesso-btns">
+        <button class="popup-btn-ouvir" id="popupBtnOuvir" onclick="popupOuvir()">
+          <span class="popup-btn-pulse"></span>
+          🔊 Ouvir explicação
+        </button>
+        <button class="popup-btn-parar" id="popupBtnParar" onclick="popupParar()" style="display:none">
+          ⏹ Parar leitura
+        </button>
+        <button class="popup-btn-fechar" onclick="popupFechar()">
+          ❌ Continuar sem áudio
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal confirmação limpar dados -->
   <div id="modalLimpar" class="modal-limpar-overlay" style="display:none" role="dialog" aria-modal="true">
     <div class="modal-limpar-box">
