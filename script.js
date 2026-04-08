@@ -653,6 +653,22 @@ function renderSemanas() {
       </div>
 
       <div class="evol-campo">
+        <label class="evol-label">🔍 Houve novos casos?</label>
+        <div class="evol-sim-nao">
+          <button
+            class="evol-btn-sn${salvo && dado.novos === true  ? ' ativo-sim' : ''}${salvo ? ' bloqueado' : ''}"
+            id="evol-sim-${sem}"
+            ${salvo ? '' : `onclick="selecionarNovos(${sem}, true)"`}
+          >👍 Sim</button>
+          <button
+            class="evol-btn-sn${salvo && dado.novos === false ? ' ativo-nao' : ''}${salvo ? ' bloqueado' : ''}"
+            id="evol-nao-${sem}"
+            ${salvo ? '' : `onclick="selecionarNovos(${sem}, false)"`}
+          >👎 Não</button>
+        </div>
+      </div>
+
+      <div class="evol-campo">
         <label class="evol-label" for="evol-casos-${sem}">
           🐄 Número de casos de mastite:
         </label>
@@ -667,22 +683,6 @@ function renderSemanas() {
           ${!salvo && evolTemp[sem] === false ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}
         />
         <div class="evol-erro-msg" id="evol-erro-${sem}" style="display:none"></div>
-      </div>
-
-      <div class="evol-campo">
-        <label class="evol-label">🔍 Houve novos casos?</label>
-        <div class="evol-sim-nao">
-          <button
-            class="evol-btn-sn${salvo && dado.novos === true  ? ' ativo-sim' : ''}${salvo ? ' bloqueado' : ''}"
-            id="evol-sim-${sem}"
-            ${salvo ? '' : `onclick="selecionarNovos(${sem}, true)"`}
-          >👍 Sim</button>
-          <button
-            class="evol-btn-sn${salvo && dado.novos === false ? ' ativo-nao' : ''}${salvo ? ' bloqueado' : ''}"
-            id="evol-nao-${sem}"
-            ${salvo ? '' : `onclick="selecionarNovos(${sem}, false)"`}
-          >👎 Não</button>
-        </div>
       </div>
 
       ${!salvo
